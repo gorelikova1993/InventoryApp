@@ -57,5 +57,12 @@
     <!-- Dialog button text for the option to cancel deletion of the current pet [CHAR LIMIT=20] -->
     <string name="cancel">Cancel</string>
     <string name="illigal_quantity_toast">Quantity can\'t be less zero</string>
+    <string name="editor_activity_title_edit_product">Edit a product</string>
+    <string name="editor_insert_product_failed">Error with saving</string>
+    <string name="editor_insert_product_succesful">Product saved</string>
+    <string name="editor_update_product_failed">Error with updating</string>
+    <string name="editor_update_product_successful">Product has changed</string>
+    <string name="editor_delete_product_failed">Error with deleting</string>
+    <string name="editor_delete_product_successful">Product deleted</string>
 
 </resources>
