@@ -103,7 +103,7 @@ public class ProductProvider extends ContentProvider {
         }
 
         Integer supplierPhoneNumber = values.getAsInteger(ProductEntry.COLUMN_PRODUCT_SUPPLIER_PHONE_NUMBER);
-        if(supplierPhoneNumber == null) {
+        if(supplierPhoneNumber != null && supplierPhoneNumber < 0) {
             throw new IllegalArgumentException("The phone number of the supplier is required");
         }
 
@@ -164,11 +164,11 @@ public class ProductProvider extends ContentProvider {
                 throw new IllegalArgumentException("Supplier name is required");
             }
         }
-        if (values.containsKey(ProductEntry.COLUMN_PRODUCT_SUPPLIER_PHONE_NUMBER)) {
-            Integer supplierPhone = values.getAsInteger(ProductEntry.COLUMN_PRODUCT_SUPPLIER_PHONE_NUMBER);
-            if (supplierPhone == null) {
-                throw new IllegalArgumentException("Supplier phone number is required");
-            }
+            if (values.containsKey(ProductEntry.COLUMN_PRODUCT_SUPPLIER_PHONE_NUMBER)) {
+                Integer supplierPhone = values.getAsInteger(ProductEntry.COLUMN_PRODUCT_SUPPLIER_PHONE_NUMBER);
+                if (supplierPhone != null) {
+                    throw new IllegalArgumentException("Supplier phone number is required");
+                }
         }
         if (values.size() == 0) {
             return 0;

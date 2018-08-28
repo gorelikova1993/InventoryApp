@@ -67,10 +67,10 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         }
         else {
             setTitle(getString(R.string.editor_activity_title_edit_product));
-
+            getLoaderManager().initLoader(ITEM_LOADER, null, this);
         }
 
-        getLoaderManager().initLoader(ITEM_LOADER, null, this);
+//TODO implements buttons 
 
         mNameEditText = findViewById(R.id.edit_name);
         mPriceEditText = findViewById(R.id.edit_price);
@@ -102,35 +102,23 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
         String nameString = mNameEditText.getText().toString().trim();
         String priceString = mPriceEditText.getText().toString().trim();
-//        int price = 0;
         String quantityString = mQuantityTextView.getText().toString().trim();
-//        int quantity = 0;
         String supplierNameString = mSupplierNameEditText.getText().toString().trim();
-//        long phoneNumber = 0;
         String supplierPhoneNumberString = mSupplierPhoneNumberEditText.getText().toString().trim();
         if (mCurrentUri == null &&
-                TextUtils.isEmpty(nameString) && TextUtils.isEmpty(nameString) &&
+                TextUtils.isEmpty(nameString)  &&
                 TextUtils.isEmpty(priceString) && TextUtils.isEmpty(quantityString) && TextUtils.isEmpty(supplierNameString)
                 && TextUtils.isEmpty(supplierPhoneNumberString)) {
             return;
+            //TODO change statement if quanityLocal = 0 return tru
         }
 
 
         ContentValues values = new ContentValues();
-
         values.put(ProductEntry.COLUMN_PRODUCT_NAME, nameString);
-//        if (!TextUtils.isEmpty(priceString)) {
-//            price = Integer.parseInt(priceString);
-//        }
         values.put(ProductEntry.COLUMN_PRODUCT_PRICE, priceString);
-//        if (!TextUtils.isEmpty(quantityString)) {
-//            quantity = Integer.parseInt(quantityString);
-//        }
         values.put(ProductEntry.COLUMN_PRODUCT_QUANTITY, quantityString);
         values.put(ProductEntry.COLUMN_PRODUCT_SUPPLIER_NAME, supplierNameString);
-//        if (!TextUtils.isEmpty(supplierPhoneNumberString)) {
-//            phoneNumber = Long.parseLong(supplierPhoneNumberString);
-//        }
         values.put(ProductEntry.COLUMN_PRODUCT_SUPPLIER_PHONE_NUMBER, supplierPhoneNumberString);
 
         if(mCurrentUri == null) {
@@ -180,6 +168,9 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 return true;
             case R.id.action_delete:
                 showDeleteConfirmationDialog();
+                return true;
+            case R.id.order_from_provider:
+                orderFromSupplier();
                 return true;
             case android.R.id.home:
                 if (!mWasEdited) {
