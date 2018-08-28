@@ -1,97 +1,113 @@
 package com.example.juliagorelikova.inventoryapp;
 
+import android.app.LoaderManager;
+import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.CursorLoader;
+import android.content.Intent;
+import android.content.Loader;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.support.v7.app.AppCompatActivity;
+import android.net.Uri;
 import android.os.Bundle;
-import android.widget.TextView;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ListView;
 
-import com.example.juliagorelikova.inventoryapp.data.ProductContract;
 import com.example.juliagorelikova.inventoryapp.data.ProductContract.ProductEntry;
-import com.example.juliagorelikova.inventoryapp.data.ProductDbHelper;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>{
 
-    private ProductDbHelper mProductDbHelper;
-
+    public static final int PRODUCT_LOADER = 0;
+    ProductCursorAdapter mProductCursorAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mProductDbHelper = new ProductDbHelper(this);
-
-        insertProduct();
-
-        displayInfoDatabase();
-
-    }
-
-    private void displayInfoDatabase() {
-        SQLiteDatabase db = mProductDbHelper.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM " + ProductEntry.TABLE_NAME, null );
-
-        TextView displayInfo = (TextView)findViewById(R.id.display_info);
-
-        try {
-            displayInfo.setText("The inventory table contains: " + cursor.getCount() + " products\n\n");
-            displayInfo.append(ProductEntry._ID + " - " +
-                ProductEntry.COLUMN_PRODUCT_NAME + " - " +
-                ProductEntry.COLUMN_PRODUCT_PRICE + " - " +
-                ProductEntry.COLUMN_PRODUCT_QUANTITY + " - "+
-                ProductEntry.COLUMN_PRODUCT_SUPPLIER_NAME + " - "+
-                ProductEntry.COLUMN_PRODUCT_SUPPLIER_PHONE_NUMBER + "\n");
-
-
-            int idColumnIndex = cursor.getColumnIndex(ProductEntry._ID);
-            int nameColumnIndex = cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_NAME);
-            int priceColumnIndex = cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_PRICE);
-            int quantityColumnIndex = cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_QUANTITY);
-            int supplierNameColumnIndex = cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_SUPPLIER_NAME);
-            int supplierPhoneNumberColumnIndex = cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_SUPPLIER_PHONE_NUMBER);
-
-            while(cursor.moveToNext()){
-                int currentId = cursor.getInt(idColumnIndex);
-                String currentName = cursor.getString(nameColumnIndex);
-                int currentPrice = cursor.getInt(priceColumnIndex);
-                int currentQuantity = cursor.getInt(quantityColumnIndex);
-                String currentSupplierName = cursor.getString(supplierNameColumnIndex);
-                String currentSupplierPhoneNumber = cursor.getString(supplierPhoneNumberColumnIndex);
-
-                displayInfo.append("\n" + currentId + " - "
-                        +currentName + " - "
-                        + currentPrice + " - "
-                        + currentQuantity + " - "
-                        + currentSupplierName + " - "
-                        + currentSupplierPhoneNumber);
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, EditorActivity.class);
+                startActivity(intent);
             }
-        }
+        });
 
-        finally {
-            cursor.close();
-        }
+        ListView productListView = (ListView)findViewById(R.id.list);
+        View emptyView = findViewById(R.id.empty_view);
+        productListView.setEmptyView(emptyView);
+        mProductCursorAdapter = new ProductCursorAdapter(this, null);
+        productListView.setAdapter(mProductCursorAdapter);
+        productListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(MainActivity.this, EditorActivity.class);
+                Uri currentUri = ContentUris.withAppendedId(ProductEntry.CONTENT_URI, id);
+                intent.setData(currentUri);
+                startActivity(intent);
+            }
+        });
+        getLoaderManager().initLoader(PRODUCT_LOADER, null, this);
+
     }
 
     private void insertProduct(){
-        SQLiteDatabase db = mProductDbHelper.getWritableDatabase();
-
         ContentValues values = new ContentValues();
-        ContentValues values2 = new ContentValues();
-        values2.put(ProductEntry.COLUMN_PRODUCT_NAME, "Pencil");
-        values2.put(ProductEntry.COLUMN_PRODUCT_PRICE, 3);
-        values2.put(ProductEntry.COLUMN_PRODUCT_QUANTITY, 10);
-        values2.put(ProductEntry.COLUMN_PRODUCT_SUPPLIER_NAME, "Konix");
-        values2.put(ProductEntry.COLUMN_PRODUCT_SUPPLIER_PHONE_NUMBER, "88945678998");
+        values.put(ProductEntry.COLUMN_PRODUCT_NAME, "Mars");
+        values.put(ProductEntry.COLUMN_PRODUCT_PRICE, 3);
+        values.put(ProductEntry.COLUMN_PRODUCT_QUANTITY, 10);
+        values.put(ProductEntry.COLUMN_PRODUCT_SUPPLIER_NAME, "VCR");
+        values.put(ProductEntry.COLUMN_PRODUCT_SUPPLIER_PHONE_NUMBER, 889456998);
+        Uri newUri = getContentResolver().insert(ProductEntry.CONTENT_URI, values);
+    }
 
-        values.put(ProductEntry.COLUMN_PRODUCT_NAME, "Notebook");
-        values.put(ProductEntry.COLUMN_PRODUCT_PRICE, 4);
-        values.put(ProductEntry.COLUMN_PRODUCT_QUANTITY, 20);
-        values.put(ProductEntry.COLUMN_PRODUCT_SUPPLIER_NAME, "Wiring");
-        values.put(ProductEntry.COLUMN_PRODUCT_SUPPLIER_PHONE_NUMBER, "8945688098");
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_catalog, menu);
+        return true;
+    }
 
-        long newRowId = db.insert(ProductEntry.TABLE_NAME, null, values);
-        long newRowId2 = db.insert(ProductEntry.TABLE_NAME, null, values2);
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_insert_dummy_data:
+                insertProduct();
+                return true;
+            case R.id.action_delete_all_entries:
+                deleteAllProducts();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void deleteAllProducts() {
+        int rowsDeleted = getContentResolver().delete(ProductEntry.CONTENT_URI, null, null);
+        Log.v("MainActivity", rowsDeleted + " rows deleted from pet database");
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        String projection [] = {ProductEntry._ID,
+                    ProductEntry.COLUMN_PRODUCT_NAME,
+                    ProductEntry.COLUMN_PRODUCT_PRICE,
+                    ProductEntry.COLUMN_PRODUCT_QUANTITY};
+
+        return new CursorLoader(this, ProductEntry.CONTENT_URI, projection, null, null, null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        mProductCursorAdapter.swapCursor(data);
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        mProductCursorAdapter.swapCursor(null);
+
     }
 }
