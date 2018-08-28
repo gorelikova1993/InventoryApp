@@ -32,7 +32,7 @@ public class ProductCursorAdapter extends CursorAdapter {
         TextView nameTextView = view.findViewById(R.id.name);
         TextView priceTextView = view.findViewById(R.id.price);
         TextView quantityTextView = view.findViewById(R.id.quantity);
-       final Button buttonBuy = view.findViewById(R.id.buy);
+        final Button buttonBuy = view.findViewById(R.id.buy);
 
 
         int nameColumnIndex = cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_NAME);
@@ -54,18 +54,13 @@ public class ProductCursorAdapter extends CursorAdapter {
             @Override
             public void onClick(View v) {
                 int currentQuantity = Integer.parseInt(quantity) - 1;
-
                     ContentValues values = new ContentValues();
                     values.put(ProductEntry.COLUMN_PRODUCT_QUANTITY, currentQuantity);
                     String selection = ProductEntry._ID + "?=";
                     Uri currentUri = ContentUris.withAppendedId(ProductEntry.CONTENT_URI, id);
                     String[] selectionArgs = new String[]{String.valueOf(id)};
                     context.getContentResolver().update(currentUri, values, selection, selectionArgs);
-
-
-
-
-            }
+                                }
         });
 
         if(Integer.parseInt(quantity) == 0) {

@@ -70,7 +70,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             getLoaderManager().initLoader(ITEM_LOADER, null, this);
         }
 
-//TODO implements buttons 
+//TODO implements buttons
 
         mNameEditText = findViewById(R.id.edit_name);
         mPriceEditText = findViewById(R.id.edit_price);

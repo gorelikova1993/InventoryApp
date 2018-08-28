@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             }
         });
 
-        ListView productListView = (ListView)findViewById(R.id.list);
+        ListView productListView = findViewById(R.id.list);
         View emptyView = findViewById(R.id.empty_view);
         productListView.setEmptyView(emptyView);
         mProductCursorAdapter = new ProductCursorAdapter(this, null);
@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 Intent intent = new Intent(MainActivity.this, EditorActivity.class);
                 Uri currentUri = ContentUris.withAppendedId(ProductEntry.CONTENT_URI, id);
                 intent.setData(currentUri);
+                Log.i("MainActivity", ContentUris.withAppendedId(ProductEntry.CONTENT_URI, id).toString());
                 startActivity(intent);
             }
         });
